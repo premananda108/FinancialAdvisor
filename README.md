@@ -10,7 +10,7 @@ pip install matplotlib
 
 pip install python-binance  
 
-создайте файл keys.py
+создайте файл keys.py в каталоге Binance
 ```python
 api_key='ваш api_key'
 api_secret='ваш api_secret'
