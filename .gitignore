@@ -1,2 +1,4 @@
-/Binance/keys.py
+.idea/
+Binance/__pycache__/
 /.venv/
+/Binance/keys.py
