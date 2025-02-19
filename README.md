@@ -5,7 +5,16 @@
 ## Установка
 
 pip install pandas
+
 pip install matplotlib
+
+pip install python-binance  
+
+создайте файл keys.py
+```python
+api_key='ваш api_key'
+api_secret='ваш api_secret'
+```
 
 ## Контакты
 
@@ -15,6 +24,5 @@ pip install matplotlib
 ## Лицензия
 
 Этот проект распространяется под лицензией MIT.  
-Посмотреть текст лицензии можно в файле [LICENSE](LICENSE).
 
 ---
