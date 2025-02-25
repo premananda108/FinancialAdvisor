@@ -7,7 +7,7 @@ from keys import api_key, api_secret
 client = Client(api_key, api_secret)
 
 # Get hourly historical data
-historical = client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1HOUR, "1 Jan 2022")
+historical = client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1DAY, "1 Jan 2022")
 historical_pd = pd.DataFrame(historical)
 
 # Set column names

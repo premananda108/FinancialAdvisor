@@ -101,23 +101,38 @@ class TradingAlgorithm:
                     })
 
     def plot_results(self, df):
-        """Построение графика с результатами торговли"""
+        """Построение графика с результатами торговли.
+        Зелёный кружочек - прибыльная сделка, красный кружочек - убыточная сделка"""
         plt.figure(figsize=(12, 8))  # Увеличим размер графика
-        plt.plot(df.index, df['Close'], label='Цена закрытия')
+        plt.plot(df.index, df['Close'])
 
-        # Отображение точек входа и выхода без повторяющихся меток
-        entries = False
-        exits = False
+        # Отображение кружочков посередине сделки
+        for i in range(0, len(self.trade_history), 2):
+            # Проверяем, что есть и вход, и выход
+            if i + 1 >= len(self.trade_history):
+                break
 
-        for trade in self.trade_history:
-            if trade['action'] == 'BUY':
-                label = 'Вход' if not entries else ''
-                plt.scatter(trade['date'], trade['price'], color='green', marker='^', s=100, label=label)
-                entries = True
-            else:
-                label = 'Выход' if not exits else ''
-                plt.scatter(trade['date'], trade['price'], color='red', marker='v', s=100, label=label)
-                exits = True
+            buy_trade = self.trade_history[i]
+            sell_trade = self.trade_history[i + 1]
+
+            # Вычисляем среднюю дату и цену для позиции кружочка
+            mid_date = buy_trade['date'] + (sell_trade['date'] - buy_trade['date']) / 2
+            mid_price = (buy_trade['price'] + sell_trade['price']) / 2
+
+            # Определяем прибыльность сделки
+            if buy_trade['action'] == 'BUY':  # Long позиция
+                is_profitable = sell_trade['price'] > buy_trade['price']
+            else:  # Short позиция (если бы она была реализована)
+                is_profitable = sell_trade['price'] < buy_trade['price']
+
+            # Выбираем цвет кружочка
+            circle_color = 'green' if is_profitable else 'red'
+
+            # Отображаем кружочек
+            plt.scatter(mid_date, mid_price,
+                        color=circle_color,
+                        marker='o',  # Кружочек
+                        s=100)
 
         plt.title(f'Результаты торговли {self.symbol}')
         plt.xlabel('Дата')
@@ -132,8 +147,8 @@ class TradingAlgorithm:
 
         plt.show()
 
-    def print_trade_results(self):
-        """Вывод текстового отчета о сделках"""
+    def print_trade_results(self, df, start_date, end_date):
+        """Вывод текстового отчета о сделках и анализа стоимости BTC"""
         print("\n=== ОТЧЕТ О ТОРГОВЛЕ ===")
         print(f"Инструмент: {self.symbol}")
         print(f"Начальный баланс: {self.initial_balance:.2f} USDT")
@@ -141,6 +156,45 @@ class TradingAlgorithm:
 
         total_profit = ((self.balance - self.initial_balance) / self.initial_balance) * 100
         print(f"Общий результат: {total_profit:.2f}%")
+
+        # Преобразуем строковые даты в datetime для фильтрации DataFrame
+        start_dt = pd.to_datetime(start_date, format='%d.%m.%Y')
+        end_dt = pd.to_datetime(end_date, format='%d.%m.%Y')
+
+        # Фильтруем DataFrame для получения данных только за указанный период
+        period_df = df[(df.index >= start_dt) & (df.index <= end_dt)]
+
+        # Получаем первую и последнюю цену за указанный период
+        first_price = period_df.iloc[0]['Close']
+        last_price = period_df.iloc[-1]['Close']
+
+        # Рассчитываем количество BTC, которое можно купить на начальный баланс
+        possible_btc_start = self.initial_balance / first_price
+
+        # Рассчитываем количество BTC, которое можно купить на конечный баланс
+        possible_btc_end = self.balance / last_price
+
+        first_date = period_df.index[0].strftime('%d.%m.%Y')
+        last_date = period_df.index[-1].strftime('%d.%m.%Y')
+
+        print(f"\nВозможное количество BTC:")
+        print(
+            f"На начальную сумму {self.initial_balance:.2f} USDT по цене на {first_date} ({first_price:.2f} USDT): {possible_btc_start:.8f} BTC")
+        print(
+            f"На конечную сумму {self.balance:.2f} USDT по цене на {last_date} ({last_price:.2f} USDT): {possible_btc_end:.8f} BTC")
+        print(f"Изменение стоимости BTC за период: {((last_price - first_price) / first_price * 100):.2f}%")
+
+        # Сравниваем стратегию с простой покупкой и удержанием
+        hodl_value = possible_btc_start * last_price
+        hodl_profit = ((hodl_value - self.initial_balance) / self.initial_balance) * 100
+        print(f"Стратегия HODL (купить и держать): {hodl_profit:.2f}%")
+
+        if total_profit > hodl_profit:
+            print(f"Ваша стратегия превосходит HODL на {(total_profit - hodl_profit):.2f}%")
+        else:
+            print(f"HODL превосходит вашу стратегию на {(hodl_profit - total_profit):.2f}%")
+
+        print("-" * 80)
 
         print("\nСписок сделок:")
         print("-" * 80)
@@ -177,17 +231,19 @@ class TradingAlgorithm:
             print(f"Прибыльных сделок: {profitable_trades}")
             print(f"Процент успешных сделок: {win_rate:.2f}%")
 
-
 # Пример использования
 if __name__ == "__main__":
+    start_date = '15.09.2023'
+    end_date = '15.03.2024'
+
     bot = TradingAlgorithm(start_balance=10000)  # Начальный баланс 10000 USDT
     historical_data = bot.get_historical_data(bot.client.KLINE_INTERVAL_1DAY, "1 Jan 2022")
     bot.execute_trade(
         historical_data,
-        take_profit_pct=2.0,
+        take_profit_pct=1.0,
         stop_loss_pct=1.0,
-        start_date='01.09.2023',
-        end_date='01.04.2024'
+        start_date=start_date,
+        end_date=end_date
     )
     bot.plot_results(historical_data)
-    bot.print_trade_results()
+    bot.print_trade_results(historical_data, start_date, end_date)
