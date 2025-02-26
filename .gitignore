@@ -2,3 +2,4 @@
 Binance/__pycache__/
 /.venv/
 /Binance/keys.py
+/Binance/trading_bot1.py
