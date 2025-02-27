@@ -34,7 +34,7 @@ class TradingAlgorithm:
 
         return df
 
-    def execute_trade(self, df, take_profit_pct=2.0, stop_loss_pct=1.0, start_date='01.01.2022', end_date='31.12.2022'):
+    def execute_trade(self, df, take_profit_pct=1.0, stop_loss_pct=1.0, start_date='01.01.2022', end_date='31.12.2022'):
         """
         Выполнение торговой логики
 
@@ -61,7 +61,8 @@ class TradingAlgorithm:
             previous_price = float(df.iloc[i - 1]['Close'])
 
             # Условие входа в позицию - цена растёт
-            entry_conditions_met = current_price > previous_price
+            #entry_conditions_met = current_price > previous_price
+            entry_conditions_met = True
 
             if not self.in_position and entry_conditions_met:
                 # Открываем лонг позицию
@@ -233,8 +234,8 @@ class TradingAlgorithm:
 
 # Пример использования
 if __name__ == "__main__":
-    start_date = '15.09.2023'
-    end_date = '15.03.2024'
+    start_date = '01.10.2022'
+    end_date = '01.04.2023'
     start_balance = 100
 
     bot = TradingAlgorithm(start_balance)
