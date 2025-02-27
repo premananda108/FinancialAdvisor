@@ -7,7 +7,7 @@ from keys import api_key, api_secret
 client = Client(api_key, api_secret)
 
 # Get hourly historical data
-historical = client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1DAY, "1 Jan 2022")
+historical = client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_15MINUTE, "1 Jan 2025")
 historical_pd = pd.DataFrame(historical)
 
 # Set column names
@@ -26,7 +26,7 @@ for col in ['Open', 'High', 'Low', 'Close', 'Volume', 'Quote Asset Volume',
     historical_pd[col] = historical_pd[col].astype(float)
 
 # Save to CSV file
-output_file = 'btcusdt_hourly_data.csv'
+output_file = 'btcusdt_15minute_data.csv'
 historical_pd.to_csv(output_file, index=False)
 print(f'Hourly data has been saved to {output_file}')
 

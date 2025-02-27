@@ -5,7 +5,7 @@ import matplotlib.dates as mdates
 
 
 class TradingAlgorithm:
-    def __init__(self, symbol='BTCUSDT', start_balance=10000):
+    def __init__(self, start_balance, symbol='BTCUSDT'):
         self.client = MockClient()
         self.symbol = symbol
         self.initial_balance = start_balance
@@ -138,7 +138,7 @@ class TradingAlgorithm:
         plt.xlabel('Дата')
         plt.ylabel('Цена (USDT)')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         plt.gcf().autofmt_xdate()
 
@@ -235,8 +235,9 @@ class TradingAlgorithm:
 if __name__ == "__main__":
     start_date = '15.09.2023'
     end_date = '15.03.2024'
+    start_balance = 100
 
-    bot = TradingAlgorithm(start_balance=10000)  # Начальный баланс 10000 USDT
+    bot = TradingAlgorithm(start_balance)
     historical_data = bot.get_historical_data(bot.client.KLINE_INTERVAL_1DAY, "1 Jan 2022")
     bot.execute_trade(
         historical_data,

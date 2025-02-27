@@ -7,7 +7,7 @@ import matplotlib.dates as mdates
 client = MockClient()
 
 # Get daily historical data
-historical = client.get_historical_klines('BTCUSDT', client.KLINE_INTERVAL_1DAY, "1 Jan 2022")
+historical = client.get_historical_klines('BTCUSDT', client.KLINE_INTERVAL_1HOUR, "1 Jan 2024")
 historical_pd = pd.DataFrame(historical)
 
 # Назначение имен столбцов для DataFrame (чтобы было понятнее)

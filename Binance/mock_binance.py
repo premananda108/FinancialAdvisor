@@ -12,7 +12,7 @@ class MockClient:
         """Load historical data from CSV file"""
         try:
             # Read the CSV file
-            df = pd.read_csv('btcusdt_hourly_data.csv')
+            df = pd.read_csv('btcusdt_day_data.csv')
             
             # Convert timestamps to milliseconds
             df['Open Time'] = pd.to_datetime(df['Open Time']).astype('int64') // 10**6
